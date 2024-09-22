@@ -11,8 +11,8 @@ export const ResponsiveContainer = styled.div`
   display: flex;
   //   border: 1px solid red;
   background-color: #131213;
-  margin-top: 50px;
-  margin-bottom: 50px;
+  //   margin-top: 50px;
+  //   margin-bottom: 50px;
 `
 
 export const TaskCreationContainer = styled.div`

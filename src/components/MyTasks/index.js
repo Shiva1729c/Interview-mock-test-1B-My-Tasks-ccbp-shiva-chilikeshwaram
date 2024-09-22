@@ -23,22 +23,22 @@ import {
 class MyTasks extends Component {
   state = {
     tagsList: [],
-    taskList: [
-      {id: 1, task: 'Go to gym', tag: 'Health'},
-      {id: 2, task: 'Prepare for the exam', tag: 'Education'},
-    ],
+    taskList: [],
     inputText: '',
-    selectedOption: 'Health',
-    isFiltered: false,
+    selectedOption: '',
+    activeTag: '',
   }
 
   componentDidMount() {
     const {tagsList} = this.props
-    this.setState({tagsList})
+    const option = tagsList[0].displayText
+    this.setState({tagsList, selectedOption: option})
   }
 
   filterTag = optionId => {
-    //   need to implement filtering
+    this.setState(prevState => ({
+      activeTag: prevState.activeTag === optionId ? '' : optionId,
+    }))
   }
 
   onSubmittingForm = event => {
@@ -52,11 +52,13 @@ class MyTasks extends Component {
       tag: selectedOption,
     }
 
-    this.setState(prevState => ({
-      taskList: [...prevState.taskList, newTask],
-      inputText: '',
-      selectedOption: 'Health',
-    }))
+    if (inputText.trim()) {
+      this.setState(prevState => ({
+        taskList: [...prevState.taskList, newTask],
+        inputText: '',
+        selectedOption: '',
+      }))
+    }
   }
 
   onChangeInputText = event => {
@@ -86,7 +88,9 @@ class MyTasks extends Component {
           value={selectedOption}
         >
           {tagsList.map(eachTag => (
-            <TagOption key={eachTag.optionId}>{eachTag.displayText}</TagOption>
+            <TagOption key={eachTag.optionId} value={eachTag.optionId}>
+              {eachTag.displayText}
+            </TagOption>
           ))}
         </TagSelectContainer>
         <SubmitButton type="submit">Add Task</SubmitButton>
@@ -95,7 +99,7 @@ class MyTasks extends Component {
   }
 
   renderTagItem = () => {
-    const {tagsList, isFiltered} = this.state
+    const {tagsList, activeTag} = this.state
 
     return (
       <TagsItemContainer>
@@ -104,7 +108,7 @@ class MyTasks extends Component {
             tagDetails={eachTag}
             key={eachTag.optionId}
             filterTag={this.filterTag}
-            isActive={isFiltered}
+            isActive={eachTag.optionId === activeTag}
           />
         ))}
       </TagsItemContainer>
@@ -112,10 +116,17 @@ class MyTasks extends Component {
   }
 
   renderTaskItem = () => {
-    const {taskList} = this.state
+    const {taskList, activeTag} = this.state
+
+    const filteredTaskList = activeTag
+      ? taskList.filter(
+          eachTask => eachTask.tag.toLowerCase() === activeTag.toLowerCase(),
+        )
+      : taskList
+
     return (
       <TaskItemContainer>
-        {taskList.map(eachTask => (
+        {filteredTaskList.map(eachTask => (
           <TaskItem taskDetails={eachTask} key={eachTask.id} />
         ))}
       </TaskItemContainer>
